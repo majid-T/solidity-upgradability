@@ -2,16 +2,24 @@
 
 pragma solidity ^0.6.0;
 
-
 contract MySmartContract {
     uint32 public counter;
     address private owner;
+    bool private stopped;
 
     /**
     @dev Enforces the caller to be the contract's owner.
     */
     modifier isOwner {
         require(msg.sender == owner, "Sender is not owner.");
+        _;
+    }
+
+    /**
+    @dev Allows transaction only if the contract is not stopped.
+    */
+    modifier isNotStopped {
+        require(!stopped, "Contract is stopped.");
         _;
     }
 
@@ -25,7 +33,14 @@ contract MySmartContract {
     @notice Increments the contract's counter if contract is active.
     @dev It will revert is the contract is stopped. Create a modifier "isNotStopped"
     */
-    function incrementCounter() public {
+    function incrementCounter() public isNotStopped {
         counter++; // Fixes bug introduced in version 1.
+    }
+
+    /**
+    @notice Toggle between contract stopped and not stopped.
+    */
+    function toggleContractStopped() public isOwner {
+        stopped = !stopped;
     }
 }
